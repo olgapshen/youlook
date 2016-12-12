@@ -2,11 +2,17 @@ package youlook.DAL;
 
 import java.sql.*;
 import java.util.*;
+import java.io.*;
+
+import org.ini4j.Ini;
+import java.io.FileReader;
 
 import youlook.entities.*;
 
 public class DataAccess
 {
+  private static final String INI_PATH = "/opt/youlook/config.ini";
+
   private Connection getConnection() {
     Connection conn = null;
 
@@ -18,11 +24,26 @@ public class DataAccess
         return null;
     }
 
+    Ini ini = null;
+
+    try {
+      ini = new Ini(new FileReader(INI_PATH));
+    } catch(IOException e) {
+      System.err.println("Got an exception!");
+      System.err.println(e.getMessage());
+
+      return null;
+    }
+
+    Ini.Section section = ini.get("auth");
+    String user = section.get("user");
+    String password = section.get("password");
+
     try {
         conn =
            DriverManager.getConnection(
             "jdbc:mysql://localhost/youlook?" +
-            "user=root&password=123456");
+            "user=" + user + "&password=" + password);
     } catch (SQLException ex) {
         System.out.println("SQLException: " + ex.getMessage());
         System.out.println("SQLState: " + ex.getSQLState());
@@ -34,12 +55,12 @@ public class DataAccess
 
   public ArrayList<Record> getRecords() {
     Connection conn = getConnection();
+    ArrayList<Record> list = new ArrayList<Record>();
 
     if (conn == null) {
-      return null;
+      return list;
     }
 
-    ArrayList<Record> list = new ArrayList<Record>();
     String query = "SELECT * FROM strings";
 
     try {

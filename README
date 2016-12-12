@@ -1,0 +1,127 @@
+                                  README
+
+Test project for YouLook
+
+The application natively deploying on Ubuntu 14.
+
+For deploy the project you need install follow applications:
+MySQL 5.7
+OpenJDK Version 1.8
+Tomcat 7
+Tomcat 7 Admin
+Apache Maven 3.3.9
+git 2.7
+
+When you will install MySQL server, you will be required for root password.
+Set it as you wish, but remember it.
+
+Install the requirements with follow commands,
+if you still don't have it installed:
+
+sudo apt-get install mysql-server
+sudo apt-get install default-jdk
+sudo apt-get install tomcat7
+sudo apt-get install tomcat7-admin
+sudo apt-get install maven
+sudo apt-get install git
+
+Clone the repository to any folder you decide to clone to and have
+permissions for.
+The repository will be cloned into the folder you are stay in:
+
+git clone git@github.com:olgapshen/youlook.git
+
+Navigate to newly created youlook directory.
+Connect to mysql server with authentication data you set while installation:
+
+mysql -uuser -ppassword
+
+Run the DB installation script.
+You just need to run the commands from the mysql shell:
+
+source DB/schema.sql;
+
+Create user for own the schema (choose user name and password).
+
+CREATE USER 'youlook'@'localhost' IDENTIFIED BY '123456';
+GRANT ALL PRIVILEGES ON youlook.* TO 'youlook'@'localhost';
+FLUSH PRIVILEGES;
+
+Create configuration directory with configuration file:
+
+sudo mkdir -p /opt/youlook
+
+Create file config.ini inside the folder with follow configuration,
+substituting user name and password with those you chose to set:
+
+[auth]
+user=youlook
+password=123456
+
+Configure Tomcat7 for be able access the console.
+Locate file /etc/tomcat7/tomcat-users.xml
+Create follow records inside <tomcat-users> xml element:
+
+<role rolename="manager"/>
+<role rolename="manager-gui"/>
+<role rolename="manager-script"/>
+<user username="admin" password="admin" roles="manager-gui,manager-script"/>
+
+Choose user name and password you wish.
+
+Restart tomcat7 server:
+
+sudo service tomcat7 restart
+
+Navigate to control panel from the browser:
+
+http://localhost:8080/manager/html/
+
+Provide user name and password you defined and previous step.
+Here you will able to manage our YouLook application we will deploy soon.
+
+Configure maven for autodeploy.
+Locate file /etc/maven/settings.xml
+Create follow records inside <servers> xml tag:
+
+<server>
+  <id>TomcatServer</id>
+  <username>admin</username>
+  <password>admin</password>
+</server>
+
+Provide user name and password from previous step.
+
+Go back to the repository folder, locate pom.xml file and be in same directory
+with the file.
+
+Try to build, package and deploy the application:
+
+mvn tomcat7:redeploy
+
+(use redeploy instead of deploy, thus deploy not always works).
+
+Open monitor for catch DB connection exceptions:
+
+tail -f /var/log/tomcat7/catalina.out
+
+Leave it open and see for errors.
+
+If everything fine, navigate to follow url:
+
+http://localhost:8080/youlook/listProcessedStrings
+
+You will get empty set.
+
+Now try to fill the DB:
+
+http://localhost:8080/youlook/countDigits?str=test1string4
+
+It will display 2, thus there are 2 digits in query string,
+and write data to DB.
+
+Check the DB again:
+
+http://localhost:8080/youlook/listProcessedStrings
+
+That it )
