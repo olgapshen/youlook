@@ -32,9 +32,9 @@ The repository will be cloned into the folder you are stay in:
 git clone git@github.com:olgapshen/youlook.git
 
 Navigate to newly created youlook directory.
-Connect to mysql server with authentication data you set while installation:
+Connect to mysql server with user root and password you set while installation:
 
-mysql -uuser -ppassword
+mysql -uroot -ppassword
 
 Run the DB installation script.
 You just need to run the commands from the mysql shell:
